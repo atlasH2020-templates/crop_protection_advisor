@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "ATLAS crop_protection_advisor Service Template API",
-    "version": "0.0.2"
+    "version": "0.0.3"
   },
   "servers": [
     {
@@ -11,14 +11,14 @@
   ],
   "tags": [
     {
-      "name": "Registration"
+      "name": "Monitoring"
     },
     {
       "name": "Advice"
     }
   ],
   "paths": {
-    "/registration": {
+    "/monitoring": {
       "post": {
         "security": [
           {
@@ -26,14 +26,14 @@
           }
         ],
         "tags": [
-          "Registration"
+          "Monitoring"
         ],
-        "summary": "Register field (register_field)",
+        "summary": "Monitor field (monitor_field)",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegistrationRequest"
+                "$ref": "#/components/schemas/MonitoringRequest"
               }
             }
           }
@@ -44,7 +44,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Registration"
+                  "$ref": "#/components/schemas/MonitoringInfo"
                 }
               }
             }
@@ -82,7 +82,7 @@
         }
       }
     },
-    "/registration/{field_urn}": {
+    "/monitoring/{field_urn}": {
       "get": {
         "security": [
           {
@@ -90,12 +90,12 @@
           }
         ],
         "tags": [
-          "Registration"
+          "Monitoring"
         ],
-        "summary": "Retrieve field registration info (registration_info)",
+        "summary": "Retrieve field monitoring info (monitoring_info)",
         "parameters": [
           {
-            "description": "the URN of a registered field (urn:<field_service_id>:<internal_id>)",
+            "description": "the URN of a monitored field (urn:<field_service_id>:<internal_id>)",
             "name": "field_urn",
             "in": "path",
             "required": true,
@@ -111,7 +111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Registration"
+                  "$ref": "#/components/schemas/MonitoringInfo"
                 }
               }
             }
@@ -132,7 +132,7 @@
             }
           },
           "404": {
-            "description": "The advice was not found",
+            "description": "The field was not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -172,7 +172,7 @@
         "tags": [
           "Registration"
         ],
-        "summary": "Delete field registration (unregister_field)",
+        "summary": "Cancel field monitoring (unmonitor_field)",
         "parameters": [
           {
             "description": "the URN of a registered field (urn:<field_service_id>:<internal_id>)",
@@ -205,7 +205,7 @@
             }
           },
           "404": {
-            "description": "The advice was not found",
+            "description": "The field was not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -591,7 +591,7 @@
         "pattern": "^urn:[a-z][a-z0-9_.\\-]*:[\\w-.]+",
         "description": "Uniform resource name of an advice with the syntax `urn:<service_id>:<internal_id>`. <service_id> must be the id of a valid and active ATLAS service"
       },
-      "RegistrationRequest": {
+      "MonitoringRequest": {
         "type": "object",
         "properties": {
           "field_urn": {
@@ -605,7 +605,8 @@
           },
           "notification_url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Invoked with POST with a 'MonitoringInfo' body (see components) when applicable"
           }
         },
         "required": [
@@ -615,12 +616,12 @@
         "example": {
           "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
           "diseases": [
-            "DISEASE_1",
-            "DISEASE_2"
+            "XEROCA",
+            "PHYXGL"
           ]
         }
       },
-      "Registration": {
+      "MonitoringInfo": {
         "type": "object",
         "properties": {
           "field_urn": {
@@ -632,10 +633,6 @@
               "$ref": "#/components/schemas/Disease"
             }
           },
-          "notification_url": {
-            "type": "string",
-            "format": "uri"
-          },
           "status": {
             "type": "string",
             "enum": [
@@ -644,20 +641,49 @@
               "READY",
               "FAILED"
             ],
-            "description": "status of the advice preparation"
+            "description": "status of the monitoring preparation"
           },
           "status_message": {
             "type": "string",
             "description": "end-user-friendly message describing the status. In the special case where status is CONFIGURATION_REQUESTED, the message MUST be a browser URL to a configuration UI where further configuration can take place"
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "disease": {
+                  "type": "string",
+                  "description": "A disease whose risk exceeds a configured threshold"
+                },
+                "treat_earliest": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Earliest recommend date to treat"
+                },
+                "treat_latest": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Latest recommend date to treat"
+                }
+              }
+            }
           }
         },
         "example": {
           "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
           "diseases": [
-            "DISEASE_1",
-            "DISEASE_2"
+            "XEROCA",
+            "PHYXGL"
           ],
-          "status": "IN_PROGRESS"
+          "status": "READY",
+          "alerts": [
+            {
+              "disease": "XEROCA",
+              "treat_earliest": "2021-10-31T00:00:00Z",
+              "treat_latest": "2021-11-15T00:00:00Z"
+            }
+          ]
         }
       },
       "AdviceRequest": {
@@ -692,7 +718,7 @@
         "example": {
           "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
           "diseases": [
-            "DISEASE_1"
+            "XEROCA"
           ],
           "applications": [
             {
@@ -701,9 +727,9 @@
                 "name": "PRODUCT_1",
                 "unit": "l",
                 "composition": {
-                  "COMPONENT_1": 100,
-                  "COMPONENT_2": 50,
-                  "COMPONENT_3": 30
+                  "75-15-0": 100,
+                  "67485-29-4": 50,
+                  "103055-07-8": 30
                 }
               }
             }
@@ -755,7 +781,7 @@
           "type": "crop_protection",
           "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
           "diseases": [
-            "DISEASE_1"
+            "XEROCA"
           ],
           "applications": [
             {
@@ -764,9 +790,9 @@
                 "name": "PRODUCT_1",
                 "unit": "l",
                 "composition": {
-                  "COMPONENT_1": 100,
-                  "COMPONENT_2": 50,
-                  "COMPONENT_3": 30
+                  "75-15-0": 100,
+                  "67485-29-4": 50,
+                  "103055-07-8": 30
                 }
               }
             }
@@ -815,10 +841,10 @@
           "product": {
             "name": "PRODUCT_1",
             "unit": "l",
-            "composition": {
-              "COMPONENT_1": 100,
-              "COMPONENT_2": 50,
-              "COMPONENT_3": 30
+            "substances": {
+              "75-15-0": 100,
+              "67485-29-4": 50,
+              "103055-07-8": 30
             }
           },
           "application_map": {
@@ -834,28 +860,30 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Optional product name"
           },
           "unit": {
+            "description": "Product's unit (liquid or solid)",
             "type": "string",
             "enum": [
               "kg",
               "l"
             ]
           },
-          "composition": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "compound": {
-                  "$ref": "#/components/schemas/Compound"
-                },
-                "amount": {
-                  "type": "number",
-                  "format": "float",
-                  "description": "Grams of compound per product unit"
-                }
+          "substances": {
+            "description": "&lt;substance_x&gt; is defined by the 'Substance' component",
+            "type": "object",
+            "properties": {
+              "<substance_1>": {
+                "type": "number",
+                "format": "float",
+                "description": "Grams of substance per product unit"
+              },
+              "<substance_n>": {
+                "type": "number",
+                "format": "float",
+                "description": "Grams of substance per product unit"
               }
             }
           }
@@ -863,19 +891,37 @@
       },
       "Disease": {
         "type": "string",
-        "enum": [
-          "DISEASE_1",
-          "DISEASE_2",
-          "DISEASE_3"
-        ]
+        "description": "Must be a valid disease EPPO Code (https://www.eppo.int/RESOURCES/eppo_databases/eppo_codes)"
       },
-      "Compound": {
+      "Substance": {
         "type": "string",
-        "enum": [
-          "COMPOUND_1",
-          "COMPOUND_2",
-          "COMPOUND_3"
-        ]
+        "description": "Must be a valid CAS RN from PPDB (http://sitem.herts.ac.uk/aeru/ppdb)"
+      },
+      "DiseaseAlert": {
+        "type": "object",
+        "properties": {
+          "treat_earliest": {
+            "type": "string",
+            "format": "date-time",
+            "description": "earliest recommended date/time by which a crop protection treatment should be applied"
+          },
+          "treat_latest": {
+            "type": "string",
+            "format": "date-time",
+            "description": "latest recommended date/time by which a crop protection treatment should be applied"
+          },
+          "diseases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Disease"
+            }
+          }
+        },
+        "required": [
+          "diseases",
+          "treat_latest"
+        ],
+        "description": "Payload of disease notification"
       },
       "SimpleError": {
         "type": "string",
