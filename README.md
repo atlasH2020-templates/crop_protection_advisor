@@ -1,5 +1,5 @@
-# crop_protection_advisor service template \[wip0.0.3\]
+# crop_protection_advisor service template \[v0.1.0\]
 
-[Documentation](https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/crop_protection_advisor/blob/wip0.0.3/doc.html)
+[Documentation](https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/crop_protection_advisor/blob/v0.1.0/doc.html)
 
-[OpenAPI Specifications](https://sensorsystems.iais.fraunhofer.de/doc/?url=https://raw.githubusercontent.com/atlasH2020-templates/crop_protection_advisor/wip0.0.3/oas)  
+[OpenAPI Specifications](https://sensorsystems.iais.fraunhofer.de/doc/?url=https://raw.githubusercontent.com/atlasH2020-templates/crop_protection_advisor/v0.1.0/oas)  

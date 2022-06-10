@@ -12,8 +12,7 @@
 <div class="header">
 ATLAS Service Template Specification
 Name                                      crop_protection_advisor
-Version                                                     0.0.3
-Status                                                      DRAFT
+Version                                                     0.1.0
 Author(s)                            M. Caballero (AgriCircle AG)
 </div>
 
@@ -117,7 +116,7 @@ This endpoint returns the monitoring info for a field.
 +-------------+------------------------------+
 |      Inputs | field urn                    |
 +-------------+------------------------------+
-|     Outputs | [nutrients], status, [alerts]|
+|     Outputs | [diseases], status, [alerts] |
 +-------------+------------------------------+
 </pre>
 The status may be one of IN_PROGRESS, CONFIGURATION_REQUIRED, READY, FAILED. In this context, the IN_PROGRESS status indicates that some background processing is still being carried out and that the service is not yet ready to perform active monitoring. The CONFIGURATION_REQUIRED status indicates that the end-user is required to perform some manual configuration on the service's proprietary UI. FAILED indicates that monitoring is not possible. 0 or more alerts may be present only when the status is READY.
@@ -237,7 +236,7 @@ and a single row:
 +=====+================+==================================+
 | ROW | COLUMN         | VALUE                            |
 +-----+----------------+----------------------------------+
-|     | type           | "crop_protection_application"    |
+|     | type           | "crop_protection"                |
 |     +----------------+----------------------------------+
 |     | participant    | "&lt;atlas participant id&gt;"         |
 |  1  +----------------+----------------------------------+
