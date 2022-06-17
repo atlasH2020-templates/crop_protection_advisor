@@ -61,7 +61,7 @@ This section provides a very high-level summary of the crop_protection_advisor A
 <pre>
 Disease Monitoring Endpoints
     Monitor field
-    Get field monitoring status
+    Get field monitoring info
     Unmonitor field
 Advice Endpoints
     Prepare Advice
@@ -88,11 +88,11 @@ crop_protection_advisor services are not required to handle intense traffic from
 
 <h2>5.1 Disease Monitoring Endpoints</h2>
 
-These functions relate to registering, and unregistering fields for which alerts are desired. crop_protection_advisor services may provide the means to actively monitor fields and generate alerts when nutrient applications are recommended.
+These functions relate to registering, and unregistering fields for which alerts are desired. crop_protection_advisor services may provide the means to actively monitor fields and generate disease alerts when crop protection applications are recommended.
 
 <h2>5.1.1 Monitor Field</h2>
 
-This endpoint registers a field to be monitored for one or more nutrient requirements by the crop_protection_advisor.
+This endpoint registers a field to be monitored for one or more disease risks.
 <pre>
 +--------------------------------------------+
 | monitor_field                              |
@@ -105,21 +105,23 @@ This endpoint registers a field to be monitored for one or more nutrient require
 </pre>
 The standard for disease identifiers is taken from the European and Mediterranean Plant Protection Organization (EPPO); more specifically, from the EPPO Code for a given disease (<a href="https://www.eppo.int/RESOURCES/eppo_databases/eppo_codes">https://www.eppo.int/RESOURCES/eppo_databases/eppo_codes</a>).
 
+NOTE: a crop_protection_advisor service MAY not support field monitoring. In that case, the implementation MUST return an error code 501 (Not Supported).
+
 See Disease Monitoring for details on the monitoring notification process.
 
-<h2>5.1.2 Get field monitoring status</h2>
+<h2>5.1.2 Get field monitoring info</h2>
 
-This endpoint returns the monitoring info for a field.
+This endpoint returns the diseases monitored on a field along with potential recommendations for crop protection operations to be performed based on a detected disease risk.
 <pre>
 +--------------------------------------------+
 | monitoring_info                            |
 +-------------+------------------------------+
 |      Inputs | field urn                    |
 +-------------+------------------------------+
-|     Outputs | [diseases], status, [alerts] |
+|     Outputs | [diseases],                  |
+|             | [recommendations]            |
 +-------------+------------------------------+
 </pre>
-The status may be one of IN_PROGRESS, CONFIGURATION_REQUIRED, READY, FAILED. In this context, the IN_PROGRESS status indicates that some background processing is still being carried out and that the service is not yet ready to perform active monitoring. The CONFIGURATION_REQUIRED status indicates that the end-user is required to perform some manual configuration on the service's proprietary UI. FAILED indicates that monitoring is not possible. 0 or more alerts may be present only when the status is READY.
 
 <h2>5.1.3 Unmonitor field</h2>
 
@@ -204,7 +206,7 @@ This section focuses on the description of binary (file) data formats. Please re
 
 <h2>6.1	Product Application File Format</h2>
 
-Nutrient Application data MUST be in GeoPackage (<a href="https://www.geopackage.org">https://www.geopackage.org</a>) format version 1.2 or newer.
+Product application data MUST be in GeoPackage (<a href="https://www.geopackage.org">https://www.geopackage.org</a>) format version 1.2 or newer.
 <pre>
 +=========================================================+
 |                TABLE gpkg_contents                      |
@@ -365,29 +367,11 @@ The "Crop Protection lifecycle" in ATLAS typically operates in a larger context 
 
 <img src="doc/advisor_lifecycle.png" style="width: 420px" />
 
-<h2>8.2 Disease Monitoring</h2>
-
-There are two methods for determining whether a monitoring request has completed (successfully or unsuccessfully): by polling the monitoring_info endpoint or by notification.
-
-<h2>8.2.1 Polling</h2>
-
-After requesting a field to be monitored, the client polls monitoring_info endpoint at regular intervals until the returned status is CONFIGURATION_REQUIRED, READY or FAILED.
-
-A CONFIGURATION_REQUIRED status indicates that a user action is required on the proprietary user interface of the advisor. By convention, in case of CONFIGURATION_REQUIRED status, the advisor MAY return a browser URL to the location where a user can provide additional parameters (as required for a specific service implementation). It is the user interface of the client application originating the request to display an appropriate message to the end-user with a clickable link to the provided URL.
-
-<h2>8.2.2 Notification</h2>
-
-If a notification URL was supplied on the monitor_field endpoint, it will be invoked by the advisor when the monitoring status changes.
-
-Advanced advisors have the ability to monitor conditions on fields in the background and proactively generate nutrient alerts on the notification URL provided at field registration.
-
-Advisors MUST invoke the notification URL supplied by the client with an HTTPS POST command. The payload will be identical to the one that would be returned by a request to the monitoring_info endpoint.
-
-<h2>8.3 Advice Preparation</h2>
+<h2>8.2 Advice Preparation</h2>
 
 There are two methods for determining whether an advice preparation has completed (successfully or unsuccessfully): by polling the advice_info endpoint or by notification.
 
-<h2>8.3.1 Polling</h2>
+<h2>8.2.1 Polling</h2>
 
 After requesting an advice preparation, the client polls the advice_info endpoint at regular intervals until the returned status is READY or FAILED.
 
@@ -395,13 +379,31 @@ The status may be CONFIGURATION_REQUIRED which indicates that a user action is r
 
 <img src="doc/advice_polling.png" style="width: 420px" />
 
-<h2>8.3.2 Notification</h2>
+<h2>8.2.2 Notification</h2>
 
 If a notification URL was supplied on the prepare_advice endpoint, it will be invoked by the advisor when the preparation status changes.
 
 <img src="doc/advice_notification.png" style="width: 420px" />
 
 Advisors MUST invoke the notification URL supplied by the client with an HTTPS POST command. The payload will be identical to the one that would be returned by the advice_info request.
+
+<h2>8.3 Field Monitoring</h2>
+
+Advanced advisors have the ability to monitor conditions on fields in the background and proactively generate crop protection recommendations. There are two methods for determining whether recommendations are available: by polling the monitoring_info endpoint or by notification.
+
+<h2>8.3.1 Polling</h2>
+
+After requesting a field to be monitored, the client polls monitoring_info endpoint at regular intervals to check whether any 'recommendations' are available.
+
+<img src="doc/monitoring_polling.png" style="width: 420px" />
+
+<h2>8.3.2 Notification</h2>
+
+If a notification URL was supplied on the monitor_field endpoint, it will be invoked by the advisor when a new recommendation becomes available.
+
+<img src="doc/monitoring_notification.png" style="width: 420px" />
+
+Advisors MUST invoke the notification URL supplied by the client with an HTTPS POST command. The payload will be as defined in the OpenAPI 'Recommendation' specifications.
 
 <h2>8.4 General Comments on Notifications</h2>
 

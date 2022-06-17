@@ -78,6 +78,21 @@
                 }
               }
             }
+          },
+          "501": {
+            "description": "Operation not supported by this service implementation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleError"
+                }
+              }
+            }
           }
         }
       }
@@ -92,7 +107,7 @@
         "tags": [
           "Monitoring"
         ],
-        "summary": "Retrieve field monitoring info (monitoring_info)",
+        "summary": "Retrieve field monitoring recommendations (monitoring_recommendations)",
         "parameters": [
           {
             "description": "the URN of a monitored field (urn:<field_service_id>:<internal_id>)",
@@ -170,12 +185,12 @@
           }
         ],
         "tags": [
-          "Registration"
+          "Monitoring"
         ],
         "summary": "Cancel field monitoring (unmonitor_field)",
         "parameters": [
           {
-            "description": "the URN of a registered field (urn:<field_service_id>:<internal_id>)",
+            "description": "the URN of a monitored field (urn:<field_service_id>:<internal_id>)",
             "name": "field_urn",
             "in": "path",
             "required": true,
@@ -606,7 +621,7 @@
           "notification_url": {
             "type": "string",
             "format": "uri",
-            "description": "Invoked with POST with a 'MonitoringInfo' body (see components) when applicable"
+            "description": "Invoked with POST with a 'Recommendation' body (see components) when applicable"
           }
         },
         "required": [
@@ -645,28 +660,12 @@
           },
           "status_message": {
             "type": "string",
-            "description": "end-user-friendly message describing the status. In the special case where status is CONFIGURATION_REQUESTED, the message MUST be a browser URL to a configuration UI where further configuration can take place"
+            "description": "end-user-friendly message describing the status of the monitoring. In the special case where status is CONFIGURATION_REQUESTED, the message MUST be a browser URL to a configuration UI where further configuration can take place"
           },
-          "alerts": {
+          "recommendations": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "disease": {
-                  "type": "string",
-                  "description": "A disease whose risk exceeds a configured threshold"
-                },
-                "treat_earliest": {
-                  "type": "string",
-                  "format": "date-time",
-                  "description": "Earliest recommend date to treat"
-                },
-                "treat_latest": {
-                  "type": "string",
-                  "format": "date-time",
-                  "description": "Latest recommend date to treat"
-                }
-              }
+              "$ref": "#/components/schemas/Recommendation"
             }
           }
         },
@@ -677,7 +676,7 @@
             "PHYXGL"
           ],
           "status": "READY",
-          "alerts": [
+          "recommendations": [
             {
               "disease": "XEROCA",
               "treat_earliest": "2021-10-31T00:00:00Z",
@@ -696,8 +695,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Disease"
-            },
-            "description": "Must be a subset of the registered diseases"
+            }
           },
           "applications": {
             "type": "array",
@@ -722,11 +720,11 @@
           ],
           "applications": [
             {
-              "application_ref": "REF_1",
+              "application_ref": "phylloxera",
               "product": {
-                "name": "PRODUCT_1",
+                "name": "Vertalec",
                 "unit": "l",
-                "composition": {
+                "substances": {
                   "75-15-0": 100,
                   "67485-29-4": 50,
                   "103055-07-8": 30
@@ -785,11 +783,11 @@
           ],
           "applications": [
             {
-              "application_ref": "REF_1",
+              "application_ref": "phylloxera",
               "product": {
-                "name": "PRODUCT_1",
+                "name": "Vertalec",
                 "unit": "l",
-                "composition": {
+                "substances": {
                   "75-15-0": 100,
                   "67485-29-4": 50,
                   "103055-07-8": 30
@@ -897,7 +895,7 @@
         "type": "string",
         "description": "Must be a valid CAS RN from PPDB (http://sitem.herts.ac.uk/aeru/ppdb)"
       },
-      "DiseaseAlert": {
+      "Recommendation": {
         "type": "object",
         "properties": {
           "treat_earliest": {
@@ -910,15 +908,12 @@
             "format": "date-time",
             "description": "latest recommended date/time by which a crop protection treatment should be applied"
           },
-          "diseases": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Disease"
-            }
+          "disease": {
+            "$ref": "#/components/schemas/Disease"
           }
         },
         "required": [
-          "diseases",
+          "disease",
           "treat_latest"
         ],
         "description": "Payload of disease notification"
