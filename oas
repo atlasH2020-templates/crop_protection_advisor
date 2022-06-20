@@ -175,6 +175,21 @@
                 }
               }
             }
+          },
+          "501": {
+            "description": "Operation not supported by this service implementation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleError"
+                }
+              }
+            }
           }
         }
       },
@@ -236,6 +251,21 @@
           },
           "429": {
             "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleError"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Operation not supported by this service implementation",
             "content": {
               "application/json": {
                 "schema": {
@@ -639,15 +669,6 @@
       "MonitoringInfo": {
         "type": "object",
         "properties": {
-          "field_urn": {
-            "$ref": "#/components/schemas/FieldURN"
-          },
-          "diseases": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Disease"
-            }
-          },
           "status": {
             "type": "string",
             "enum": [
@@ -669,18 +690,17 @@
             }
           }
         },
+        "required": [
+          "status",
+          "recommendations"
+        ],
         "example": {
-          "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
-          "diseases": [
-            "XEROCA",
-            "PHYXGL"
-          ],
           "status": "READY",
           "recommendations": [
             {
               "disease": "XEROCA",
-              "treat_earliest": "2021-10-31T00:00:00Z",
-              "treat_latest": "2021-11-15T00:00:00Z"
+              "earliest": "2021-10-31T00:00:00Z",
+              "latest": "2021-11-15T00:00:00Z"
             }
           ]
         }
@@ -747,12 +767,6 @@
           "field_urn": {
             "$ref": "#/components/schemas/FieldURN"
           },
-          "diseases": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Disease"
-            }
-          },
           "applications": {
             "type": "array",
             "items": {
@@ -774,13 +788,16 @@
             "description": "end-user-friendly message describing the status. In the special case where status is CONFIGURATION_REQUESTED, the message MUST be a browser URL to a configuration UI where further configuration can take place"
           }
         },
+        "required": [
+          "urn",
+          "field_urn",
+          "applications",
+          "status"
+        ],
         "example": {
-          "urn": "urn:com.agricircle.atlas.crop_protection_advisor:1e371d44-59ae-4af1-9570-9743dd3ba613",
+          "urn": "urn:com.agricircle.atlas.crop_protection:1e371d44-59ae-4af1-9570-9743dd3ba613",
           "type": "crop_protection",
           "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
-          "diseases": [
-            "XEROCA"
-          ],
           "applications": [
             {
               "application_ref": "phylloxera",
@@ -795,7 +812,7 @@
               }
             }
           ],
-          "status": "IN_PROGRESS"
+          "status": "READY"
         }
       },
       "Application": {
@@ -804,6 +821,11 @@
           "application_ref": {
             "type": "string",
             "pattern": "^\\w+$"
+          },
+          "type": {
+            "readOnly": true,
+            "type": "string",
+            "pattern": "crop_protection"
           },
           "product": {
             "$ref": "#/components/schemas/Product"
@@ -825,13 +847,14 @@
             }
           },
           "amount": {
+            "readOnly": true,
             "type": "number",
-            "format": "float",
-            "readOnly": true
+            "format": "float"
           }
         },
         "required": [
           "application_ref",
+          "type",
           "product"
         ],
         "example": {
@@ -885,7 +908,11 @@
               }
             }
           }
-        }
+        },
+        "required": [
+          "unit",
+          "substances"
+        ]
       },
       "Disease": {
         "type": "string",
@@ -898,23 +925,23 @@
       "Recommendation": {
         "type": "object",
         "properties": {
-          "treat_earliest": {
-            "type": "string",
-            "format": "date-time",
-            "description": "earliest recommended date/time by which a crop protection treatment should be applied"
-          },
-          "treat_latest": {
-            "type": "string",
-            "format": "date-time",
-            "description": "latest recommended date/time by which a crop protection treatment should be applied"
-          },
           "disease": {
             "$ref": "#/components/schemas/Disease"
+          },
+          "earliest": {
+            "type": "string",
+            "format": "date-time",
+            "description": "earliest date/time by which an advice/task should be performed for the disease"
+          },
+          "latest": {
+            "type": "string",
+            "format": "date-time",
+            "description": "latest date/time by which an advice/task should be performed for the disease"
           }
         },
         "required": [
           "disease",
-          "treat_latest"
+          "latest"
         ],
         "description": "Payload of disease notification"
       },
