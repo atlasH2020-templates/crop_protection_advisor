@@ -790,6 +790,7 @@
         },
         "required": [
           "urn",
+          "type",
           "field_urn",
           "applications",
           "status"
