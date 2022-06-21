@@ -34,6 +34,13 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/MonitoringRequest"
+              },
+              "example": {
+                "field_urn": "urn:com.agricircle.atlas.field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
+                "diseases": [
+                  "XEROCA",
+                  "PHYXGL"
+                ]
               }
             }
           }
@@ -45,6 +52,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MonitoringInfo"
+                },
+                "example": {
+                  "status": "READY",
+                  "recommendations": [
+                    {
+                      "disease": "XEROCA",
+                      "earliest": "2021-10-31T00:00:00Z",
+                      "latest": "2021-11-15T00:00:00Z"
+                    }
+                  ]
                 }
               }
             }
@@ -117,7 +134,7 @@
             "schema": {
               "$ref": "#/components/schemas/FieldURN"
             },
-            "example": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac"
+            "example": "urn:com.agricircle.atlas.field_data:fdbe6f55-6179-4b88-9177-4afbed33adac"
           }
         ],
         "responses": {
@@ -127,6 +144,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MonitoringInfo"
+                },
+                "example": {
+                  "status": "READY",
+                  "recommendations": [
+                    {
+                      "disease": "XEROCA",
+                      "earliest": "2021-10-31T00:00:00Z",
+                      "latest": "2021-11-15T00:00:00Z"
+                    }
+                  ]
                 }
               }
             }
@@ -212,7 +239,7 @@
             "schema": {
               "$ref": "#/components/schemas/FieldURN"
             },
-            "example": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac"
+            "example": "urn:com.agricircle.atlas.field_data:fdbe6f55-6179-4b88-9177-4afbed33adac"
           }
         ],
         "responses": {
@@ -298,6 +325,26 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AdviceRequest"
+              },
+              "example": {
+                "field_urn": "urn:com.agricircle.atlas.field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
+                "diseases": [
+                  "XEROCA"
+                ],
+                "applications": [
+                  {
+                    "application_ref": "phylloxera",
+                    "product": {
+                      "name": "Vertalec",
+                      "unit": "l",
+                      "substances": {
+                        "75-15-0": 100,
+                        "67485-29-4": 50,
+                        "103055-07-8": 30
+                      }
+                    }
+                  }
+                ]
               }
             }
           }
@@ -309,6 +356,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Advice"
+                },
+                "example": {
+                  "urn": "urn:com.agricircle.atlas.crop_protection_advisor:1e371d44-59ae-4af1-9570-9743dd3ba613",
+                  "type": "crop_protection",
+                  "field_urn": "urn:com.agricircle.atlas.field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
+                  "applications": [
+                    {
+                      "application_ref": "phylloxera",
+                      "product": {
+                        "name": "Vertalec",
+                        "unit": "l",
+                        "substances": {
+                          "75-15-0": 100,
+                          "67485-29-4": 50,
+                          "103055-07-8": 30
+                        }
+                      }
+                    }
+                  ],
+                  "status": "READY"
                 }
               }
             }
@@ -406,6 +473,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Advice"
+                },
+                "example": {
+                  "urn": "urn:com.agricircle.atlas.crop_protection_advisor:1e371d44-59ae-4af1-9570-9743dd3ba613",
+                  "type": "crop_protection",
+                  "field_urn": "urn:com.agricircle.atlas.field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
+                  "applications": [
+                    {
+                      "application_ref": "phylloxera",
+                      "product": {
+                        "name": "Vertalec",
+                        "unit": "l",
+                        "substances": {
+                          "75-15-0": 100,
+                          "67485-29-4": 50,
+                          "103055-07-8": 30
+                        }
+                      }
+                    }
+                  ],
+                  "status": "READY"
                 }
               }
             }
@@ -561,7 +648,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "slurry"
+            "example": "phylloxera"
           }
         ],
         "responses": {
@@ -570,7 +657,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Application"
+                  "$ref": "#/components/schemas/ApplicationDetails"
+                },
+                "example": {
+                  "application_ref": "phylloxera",
+                  "product": {
+                    "name": "Vertalec",
+                    "unit": "l",
+                    "substances": {
+                      "75-15-0": 100,
+                      "67485-29-4": 50,
+                      "103055-07-8": 30
+                    }
+                  },
+                  "application_map": {
+                    "total_amount": 75000,
+                    "download_url": "https://{SERVICE_BASE_URL}/some_arbitrary_path",
+                    "url_expires_at": "2021-10-31T15:32:00Z"
+                  }
                 }
               }
             }
@@ -657,14 +761,7 @@
         "required": [
           "field_urn",
           "diseases"
-        ],
-        "example": {
-          "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
-          "diseases": [
-            "XEROCA",
-            "PHYXGL"
-          ]
-        }
+        ]
       },
       "MonitoringInfo": {
         "type": "object",
@@ -693,17 +790,7 @@
         "required": [
           "status",
           "recommendations"
-        ],
-        "example": {
-          "status": "READY",
-          "recommendations": [
-            {
-              "disease": "XEROCA",
-              "earliest": "2021-10-31T00:00:00Z",
-              "latest": "2021-11-15T00:00:00Z"
-            }
-          ]
-        }
+        ]
       },
       "AdviceRequest": {
         "type": "object",
@@ -732,27 +819,7 @@
           "field_urn",
           "diseases",
           "applications"
-        ],
-        "example": {
-          "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
-          "diseases": [
-            "XEROCA"
-          ],
-          "applications": [
-            {
-              "application_ref": "phylloxera",
-              "product": {
-                "name": "Vertalec",
-                "unit": "l",
-                "substances": {
-                  "75-15-0": 100,
-                  "67485-29-4": 50,
-                  "103055-07-8": 30
-                }
-              }
-            }
-          ]
-        }
+        ]
       },
       "Advice": {
         "type": "object",
@@ -794,27 +861,7 @@
           "field_urn",
           "applications",
           "status"
-        ],
-        "example": {
-          "urn": "urn:com.agricircle.atlas.crop_protection:1e371d44-59ae-4af1-9570-9743dd3ba613",
-          "type": "crop_protection",
-          "field_urn": "urn:field_data:fdbe6f55-6179-4b88-9177-4afbed33adac",
-          "applications": [
-            {
-              "application_ref": "phylloxera",
-              "product": {
-                "name": "Vertalec",
-                "unit": "l",
-                "substances": {
-                  "75-15-0": 100,
-                  "67485-29-4": 50,
-                  "103055-07-8": 30
-                }
-              }
-            }
-          ],
-          "status": "READY"
-        }
+        ]
       },
       "Application": {
         "type": "object",
@@ -830,11 +877,35 @@
           },
           "product": {
             "$ref": "#/components/schemas/Product"
+          }
+        },
+        "required": [
+          "application_ref",
+          "type",
+          "product"
+        ]
+      },
+      "ApplicationDetails": {
+        "type": "object",
+        "properties": {
+          "application_ref": {
+            "type": "string",
+            "pattern": "^\\w+$"
+          },
+          "type": {
+            "type": "string",
+            "pattern": "crop_protection"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
           },
           "application_map": {
-            "readOnly": true,
             "type": "object",
             "properties": {
+              "total_amount": {
+                "type": "number",
+                "format": "float"
+              },
               "download_url": {
                 "type": "string",
                 "format": "uri",
@@ -845,38 +916,19 @@
                 "format": "date-time",
                 "description": "date/time at which download URL expires"
               }
-            }
-          },
-          "amount": {
-            "readOnly": true,
-            "type": "number",
-            "format": "float"
+            },
+            "required": [
+              "total_amount",
+              "download_url"
+            ]
           }
         },
         "required": [
           "application_ref",
           "type",
-          "product"
-        ],
-        "example": {
-          "application_ref": "REF_1",
-          "product": {
-            "name": "PRODUCT_1",
-            "unit": "l",
-            "substances": {
-              "75-15-0": 100,
-              "67485-29-4": 50,
-              "103055-07-8": 30
-            }
-          },
-          "application_map": {
-            "download_url": "https://{SERVICE_BASE_URL}/some_arbitrary_path",
-            "url_expires_at": "2021-10-31T15:32:00Z"
-          },
-          "amount": {
-            "total": 75000
-          }
-        }
+          "product",
+          "application_map"
+        ]
       },
       "Product": {
         "type": "object",
