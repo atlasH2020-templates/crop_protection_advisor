@@ -871,18 +871,12 @@
             "type": "string",
             "pattern": "^\\w+$"
           },
-          "type": {
-            "readOnly": true,
-            "type": "string",
-            "pattern": "crop_protection"
-          },
           "product": {
             "$ref": "#/components/schemas/Product"
           }
         },
         "required": [
           "application_ref",
-          "type",
           "product"
         ]
       },
@@ -892,10 +886,6 @@
           "application_ref": {
             "type": "string",
             "pattern": "^\\w+$"
-          },
-          "type": {
-            "type": "string",
-            "pattern": "crop_protection"
           },
           "product": {
             "$ref": "#/components/schemas/Product"
@@ -926,7 +916,6 @@
         },
         "required": [
           "application_ref",
-          "type",
           "product",
           "application_map"
         ]
