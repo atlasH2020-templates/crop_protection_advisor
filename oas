@@ -812,7 +812,8 @@
           },
           "notification_url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Invoked with POST with an 'Advice' body (see components) when applicable"
           }
         },
         "required": [
