@@ -2,7 +2,11 @@
   "openapi": "3.0.1",
   "info": {
     "title": "ATLAS crop_protection_advisor Service Template API",
-    "version": "0.1.0"
+    "version": "0.1.1"
+  },
+  "externalDocs": {
+    "description": "Service Template Document",
+    "url": "https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/crop_protection_advisor/blob/v0.1.1/doc.html"
   },
   "servers": [
     {
@@ -851,9 +855,9 @@
             ],
             "description": "status of the advice"
           },
-          "status_message": {
+          "configuration_url": {
             "type": "string",
-            "description": "end-user-friendly message describing the status. In the special case where status is CONFIGURATION_REQUESTED, the message MUST be a browser URL to a configuration UI where further configuration can take place"
+            "description": "A 'browser URL' to a proprietary advisor UI where the user may provide additional information required to prepare the advice. A well-behaved FMIS will present his users with a visual indication and the means to click on this link when this attribute is present for advices with status CONFIGURATION_REQUIRED."
           }
         },
         "required": [
