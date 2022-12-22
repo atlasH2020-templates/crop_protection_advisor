@@ -12,7 +12,7 @@
 <div class="header">
 ATLAS Service Template Specification
 Name                                      crop_protection_advisor
-Version                                                     0.1.2
+Version                                                     0.2.0
 Author(s)                            M. Caballero (AgriCircle AG)
 </div>
 
@@ -46,6 +46,8 @@ both service consumers or service provider implementors:
 <pre>
     - GeoJSON specifications (<a href="https://geojson.org/">https://geojson.org/</a>)
     - GeoPackage specifications (<a href="https://www.geopackage.org/">https://www.geopackage.org/</a>)
+    - EPPO Code for a given disease (<a href="https://www.eppo.int/RESOURCES/eppo_databases/eppo_codes">https://www.eppo.int/RESOURCES/eppo_databases/eppo_codes</a>)
+    - European Chemical Agency regulated substances (<a href="https://echa.europa.eu">https://echa.europa.eu/</a>), and Chemical Abstracts Service, more specifically CAS Number.
 </pre>
 <h2>4 The Advisor Lifecycle</h2>
 
@@ -123,7 +125,7 @@ This endpoint registers a field to be monitored for one or more disease risks.
 |     Outputs | (see monitoring_info)        |
 +-------------+------------------------------+
 </pre>
-The standard for disease identifiers is taken from the European and Mediterranean Plant Protection Organization (EPPO); more specifically, from the EPPO Code for a given disease (<a href="https://www.eppo.int/RESOURCES/eppo_databases/eppo_codes">https://www.eppo.int/RESOURCES/eppo_databases/eppo_codes</a>).
+The standard for disease identifiers is taken from the European and Mediterranean Plant Protection Organization (EPPO); more specifically, from the EPPO Code for a given disease.
 
 NOTE: a crop_protection_advisor service MAY not support field monitoring. In that case, the implementation MUST return an error code 501 (Not Supported).
 
@@ -169,7 +171,7 @@ This endpoint is used to request an advice to be prepared for protecting against
 | prepare_advice                             |
 +-------------+------------------------------+
 |      Inputs | field urn, [diseases],       |
-|             | [substances]                 |
+|             | [products]                   |
 +-------------+------------------------------+
 |     Outputs | advice urn                   |
 +-------------+------------------------------+
@@ -304,7 +306,7 @@ If the data_type of the product table is "features", then the columns must be as
 |     +-----------------+---------------------------------+
 |     | geometry        | "GeoPackage Geometry"           |
 |     +-----------------+---------------------------------+
-|     | amount          | "amount in product units (REAL)"|
+|     | amount          | "REAL"                          |
 |-----+-----------------+---------------------------------+
 </pre>
 Instead, if the data_type of the product table is "2d-gridded-coverage" then it must be defined as follows:
@@ -325,7 +327,10 @@ Instead, if the data_type of the product table is "2d-gridded-coverage" then it 
 |     | tile_data       | "BLOB (TIFF)"                   |
 |-----+-----------------+---------------------------------+
 </pre>
-Where tile_data is a tiff blob holding Float32 values as per GeoPackage specifications (<a href="http://docs.opengeospatial.org/is/17-066r1/17-066r1.html#_storage_formats_and_grid_cell_values">http://docs.opengeospatial.org/is/17-066r1/17-066r1.html#_storage_formats_and_grid_cell_values</a>).
+Where tile_data is a tiff blob holding Float32 values representing applied amounts, as per GeoPackage specifications (<a href="http://docs.opengeospatial.org/is/17-066r1/17-066r1.html#_storage_formats_and_grid_cell_values">http://docs.opengeospatial.org/is/17-066r1/17-066r1.html#_storage_formats_and_grid_cell_values</a>).
+
+In either case, the product amounts refer to the amount of water-diluted solution (in litre) if "application_info.info.dilution" is specified; otherwise, the amount of pure product in "application_info.info.product.unit".
+
 <pre>
 +============================+
 |  TABLE application_info    |
@@ -357,19 +362,21 @@ Crop protection "application_info.info" is a JSON object serialized as a string,
 +-----------------------------------------------+
 | {                                             |
 |   "product": {                                |
-|      "name": "optional name",                 |
+|      "name": "&lt;commercial_name&gt;",             |
 |      "unit": "kg|l",                          |
-|      "amount": &lt;amount_in_product_unit&gt;,      |
 |      "substances": {                          |
-|         "80-56-8": "amount_in_grams_per_unit",|
-|         "50-00-0": "amount_in_grams_per_unit",|
+|         "7440-50-8": &lt;g_per_product_unit&gt;,  |
 |         ...                                   |
 |      }                                        |
 |   }                                           |
+|   "dilution": &lt;l_water_per_product_unit&gt;,     |
+|   "amount": &lt;amount_in_product_unit&gt;          |
 | }                                             |
 +-----------------------------------------------+
 </pre>
-The standard for Crop protection substances identifiers is taken from the Pesticide Properties DataBase (PPDB, http://sitem.herts.ac.uk/aeru/ppdb/en/index.htm); more specifically, the "CAS RN" (Chemical Abstracts Service Registry Number) from a PPDB entry.
+"product.substances" is optional. When defined, CAS Numbers must be used as denominations for the active substances whose amounts are given in grams per "product.unit".
+
+"amount" refers to the total amount of water-diluted solution (in litre) if "dilution" is specified; otherwise, the total amount of pure product in "product.unit".
 
 <h2>8 Access and Authentication</h2>
 
