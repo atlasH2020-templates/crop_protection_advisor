@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "info": {
     "title": "ATLAS crop_protection_advisor Service Template API",
     "version": "0.2.0"
@@ -282,13 +282,14 @@
                 "applications": [
                   {
                     "application_ref": "airone",
-                    "product": {
-                      "name": "Airone WG",
-                      "unit": "kg",
-                      "dilution": 200,
-                      "substances": {
-                        "7440-50-8": 280
-                      }
+                    "product_mix": {
+                      "composition": [
+                        {
+                          "name": "Airone WG",
+                          "ratio": 1.0
+                        }
+                      ],
+                      "dilution": 200
                     }
                   }
                 ]
@@ -311,13 +312,14 @@
                   "applications": [
                     {
                       "application_ref": "airone",
-                      "product": {
-                        "name": "Airone WG",
-                        "unit": "kg",
-                        "dilution": 200,
-                        "substances": {
-                          "7440-50-8": 280
-                        }
+                      "product_mix": {
+                        "composition": [
+                          {
+                            "name": "Airone WG",
+                            "ratio": 1.0
+                          }
+                        ],
+                        "dilution": 200
                       }
                     }
                   ],
@@ -407,13 +409,14 @@
                   "applications": [
                     {
                       "application_ref": "airone",
-                      "product": {
-                        "name": "Airone WG",
-                        "unit": "kg",
-                        "dilution": 200,
-                        "substances": {
-                          "7440-50-8": 280
-                        }
+                      "product_mix": {
+                        "composition": [
+                          {
+                            "name": "Airone WG",
+                            "ratio": 1.0
+                          }
+                        ],
+                        "dilution": 200
                       }
                     }
                   ],
@@ -556,13 +559,14 @@
                 },
                 "example": {
                   "application_ref": "airone",
-                  "product": {
-                    "name": "Airone WG",
-                    "unit": "kg",
-                    "dilution": 200,
-                    "substances": {
-                      "7440-50-8": 280
-                    }
+                  "product_mix": {
+                    "composition": [
+                      {
+                        "name": "Airone WG",
+                        "ratio": 1.0
+                      }
+                    ],
+                    "dilution": 200
                   },
                   "application_map": {
                     "total_amount": 8000,
@@ -751,16 +755,13 @@
           "application_ref": {
             "$ref": "#/components/schemas/ApplicationRef"
           },
-          "product": {
-            "$ref": "#/components/schemas/Product"
-          },
-          "dilution": {
-            "$ref": "#/components/schemas/ProductDilution"
+          "product_mix": {
+            "$ref": "#/components/schemas/ProductMix"
           }
         },
         "required": [
           "application_ref",
-          "product"
+          "product_mix"
         ]
       },
       "ApplicationDetails": {
@@ -769,11 +770,8 @@
           "application_ref": {
             "$ref": "#/components/schemas/ApplicationRef"
           },
-          "product": {
-            "$ref": "#/components/schemas/Product"
-          },
-          "dilution": {
-            "$ref": "#/components/schemas/ProductDilution"
+          "product_mix": {
+            "$ref": "#/components/schemas/ProductMix"
           },
           "application_map": {
             "type": "object",
@@ -781,7 +779,7 @@
               "total_amount": {
                 "type": "number",
                 "format": "float",
-                "description": "Total amount of product, including water if diluted."
+                "description": "Total amount of product mix, including water if diluted."
               },
               "download_url": {
                 "type": "string",
@@ -802,43 +800,69 @@
         },
         "required": [
           "application_ref",
-          "product",
+          "product_mix",
           "application_map"
         ]
       },
-      "Product": {
+      "ProductMix": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "description": "Commercial product denomination"
+          "description": {
+            "type": "string"
+          },
+          "composition": {
+            "description": "The sum of the ratios in the products making up the mix must amount to 1.",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Commercial product denomination"
+                },
+                "active_substances": {
+                  "type": "object",
+                  "patternProperties": {
+                    "copper|*": {
+                      "description": "Percentage per product unit",
+                      "type": "number",
+                      "format": "float",
+                      "minValue": 0,
+                      "maxValue": 1
+                    }
+                  }
+                },
+                "ratio": {
+                  "description": "Percentage per mix unit",
+                  "type": "number",
+                  "format": "float",
+                  "minValue": 0,
+                  "maxValue": 1.0
+                }
+              },
+              "required": [
+                "name",
+                "ratio"
+              ]
+            }
+          },
+          "dilution": {
+            "type": "number",
+            "format": "float",
+            "description": "Amount of water added per product mix unit. If unspecified, it is assumed that the product is applied without dilution (no added water)."
           },
           "unit": {
-            "description": "Product's unit (liquid or solid)",
+            "description": "Product mix unit (liquid or solid). Defaults to l if dilution is applied otherwise kg.",
             "type": "string",
             "enum": [
               "kg",
               "l"
             ]
-          },
-          "substances": {
-            "description": "Optional active substances (CAS Number) in grams per undiluted product unit.",
-            "type": "object",
-            "properties": {
-              "<substance_1>": {
-                "type": "number",
-                "format": "float"
-              },
-              "<substance_n>": {
-                "type": "number",
-                "format": "float"
-              }
-            }
           }
         },
         "required": [
-          "name",
-          "unit"
+          "composition"
         ]
       },
       "Disease": {
@@ -849,11 +873,6 @@
         "description": "Arbitrary, but unique within the advice, identifier of the application",
         "type": "string",
         "pattern": "^\\w+$"
-      },
-      "ProductDilution": {
-        "type": "number",
-        "format": "float",
-        "description": "Amount of water added per product unit. If unspecified, it is assumed that the product is applied without dilution (no added water)."
       },
       "Recommendation": {
         "type": "object",
