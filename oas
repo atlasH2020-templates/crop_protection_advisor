@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ATLAS crop_protection_advisor Service Template API",
-    "version": "0.2.0"
+    "version": "0.2.1"
   },
   "externalDocs": {
     "description": "Service Template Document",
@@ -808,7 +808,8 @@
         "type": "object",
         "properties": {
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Human readable summary description of the product mix."
           },
           "composition": {
             "description": "The sum of the ratios in the products making up the mix must amount to 1.",
@@ -817,21 +818,21 @@
             "items": {
               "type": "object",
               "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "herbicide",
+                    "insecticide",
+                    "fungicide",
+                    "weed_control",
+                    "disease_control",
+                    "plant_growth_regulator",
+                    "other"
+                  ]
+                },
                 "name": {
                   "type": "string",
                   "description": "Commercial product denomination"
-                },
-                "active_substances": {
-                  "type": "object",
-                  "patternProperties": {
-                    "copper|*": {
-                      "description": "Percentage per product unit",
-                      "type": "number",
-                      "format": "float",
-                      "minValue": 0,
-                      "maxValue": 1
-                    }
-                  }
                 },
                 "ratio": {
                   "description": "Percentage per mix unit",
@@ -839,9 +840,22 @@
                   "format": "float",
                   "minValue": 0,
                   "maxValue": 1.0
+                },
+                "active_substances": {
+                  "type": "object",
+                  "patternProperties": {
+                    "copper|*": {
+                      "description": "Percentage per component unit",
+                      "type": "number",
+                      "format": "float",
+                      "minValue": 0,
+                      "maxValue": 1
+                    }
+                  }
                 }
               },
               "required": [
+                "type",
                 "name",
                 "ratio"
               ]
@@ -853,7 +867,7 @@
             "description": "Amount of water added per product mix unit. If unspecified, it is assumed that the product is applied without dilution (no added water)."
           },
           "unit": {
-            "description": "Product mix unit (liquid or solid). Defaults to l if dilution is applied otherwise kg.",
+            "description": "Product mix unit (liquid or solid). MUST be l if dilution is applied.",
             "type": "string",
             "enum": [
               "kg",
@@ -862,7 +876,9 @@
           }
         },
         "required": [
-          "composition"
+          "description",
+          "composition",
+          "unit"
         ]
       },
       "Disease": {
