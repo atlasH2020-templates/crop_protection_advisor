@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.0.1",
   "info": {
     "title": "ATLAS crop_protection_advisor Service Template API",
     "version": "0.2.1"
@@ -282,7 +282,7 @@
                 "applications": [
                   {
                     "application_ref": "airone",
-                    "product_mix": {
+                    "product": {
                       "composition": [
                         {
                           "name": "Airone WG",
@@ -312,7 +312,7 @@
                   "applications": [
                     {
                       "application_ref": "airone",
-                      "product_mix": {
+                      "product": {
                         "composition": [
                           {
                             "name": "Airone WG",
@@ -409,7 +409,7 @@
                   "applications": [
                     {
                       "application_ref": "airone",
-                      "product_mix": {
+                      "product": {
                         "composition": [
                           {
                             "name": "Airone WG",
@@ -559,7 +559,7 @@
                 },
                 "example": {
                   "application_ref": "airone",
-                  "product_mix": {
+                  "product": {
                     "composition": [
                       {
                         "name": "Airone WG",
@@ -755,13 +755,13 @@
           "application_ref": {
             "$ref": "#/components/schemas/ApplicationRef"
           },
-          "product_mix": {
-            "$ref": "#/components/schemas/ProductMix"
+          "product": {
+            "$ref": "#/components/schemas/Product"
           }
         },
         "required": [
           "application_ref",
-          "product_mix"
+          "product"
         ]
       },
       "ApplicationDetails": {
@@ -770,8 +770,8 @@
           "application_ref": {
             "$ref": "#/components/schemas/ApplicationRef"
           },
-          "product_mix": {
-            "$ref": "#/components/schemas/ProductMix"
+          "product": {
+            "$ref": "#/components/schemas/Product"
           },
           "application_map": {
             "type": "object",
@@ -800,14 +800,14 @@
         },
         "required": [
           "application_ref",
-          "product_mix",
+          "product",
           "application_map"
         ]
       },
-      "ProductMix": {
+      "Product": {
         "type": "object",
         "properties": {
-          "description": {
+          "name": {
             "type": "string",
             "description": "Human readable summary description of the product mix."
           },
